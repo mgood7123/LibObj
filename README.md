@@ -97,7 +97,7 @@ invoking `clone` on `Obj_Example2` will invoke `clone_impl` on the base class `O
 
 # other details
 
-all copy and move constructors are explicitly marked as `= delete` due to the fact that constructors in C++ do not correctly participate in overload resolution
+`all copy and move constructors` are explicitly marked as `= delete` due to the fact that `constructors in C++ do not correctly participate in overload resolution`
 
 we provide a `from` function to assign objects to other objects, in both `copy` and `move` form
 
