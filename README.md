@@ -94,6 +94,17 @@ the same is true here
 
 invoking `clone` on `Obj_Example2` will invoke `clone_impl` on the base class `Obj_Example` or `Obj` if `Obj_Example` did not have a custom clone override
 
+```java
+[LOG] cloning o16 from o15 of type LibObj::Obj_Example2<int>
+Obj_Example2<T>CLONE
+constructing with assigned value: nullptr
+Obj_Example<T>CLONE_IMPL
+Obj_Example CLONE 
+other: LibObj::Obj_Example2<int>@1e3340f, value: 1
+assigned value: 1
+[LOG] o16 = LibObj::Obj_Example2<int>@1e3365f, value: 1
+[LOG] DONE cloned o16 from o15 of type LibObj::Obj_Example2<int>
+```
 
 # other details
 

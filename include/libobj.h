@@ -23,7 +23,6 @@
         delete static_cast<T *>(ptr);                                          \
     }                                                                          \
     std::shared_ptr<T> clone() const {                                         \
-        std::cout << #T << "CLONE\n";                                          \
         T * p = static_cast<T *>(baseClone());                                 \
         auto & t1 = typeid(*this);                                             \
         auto & t2 = typeid(*p);                                                \
@@ -56,7 +55,6 @@
         delete static_cast<T *>(ptr);                                          \
     }                                                                          \
     std::shared_ptr<T> clone() const {                                         \
-        std::cout << #T << "CLONE\n";                                          \
         T * p = static_cast<T *>(baseClone());                                 \
         auto & t1 = typeid(*this);                                             \
         auto & t2 = typeid(*p);                                                \
@@ -75,7 +73,6 @@
     }                                                                          \
                                                                                \
     void clone_impl(Obj_Base * ptr) const override {                           \
-        std::cout << #T << "CLONE_IMPL\n";                                     \
         clone_impl_actual(static_cast<T *>(ptr));                              \
     }                                                                          \
     void clone_impl_actual(T * obj) const
@@ -164,8 +161,6 @@ namespace LibObj {
 
     struct Obj : public Obj_Base {
             LIBOBJ_BASE_WITH_CUSTOM_CLONE(Obj) {
-                std::cout << "OBJ CLONE "
-                          << "\n";
                 obj->from(*this);
             }
 
