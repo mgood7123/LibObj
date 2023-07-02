@@ -80,6 +80,9 @@
     }                                                                          \
     void clone_impl_actual(T * obj) const
 
+#define LIBOBJ_OVERRIDE__EQUALS                                                \
+    bool operator==(const Obj_Base & other) const override
+
 #define LIBOBJ_OVERRIDE__STREAM                                                \
     std::ostream & toStream(std::ostream & os) const override
 
@@ -128,6 +131,7 @@ namespace LibObj {
             virtual void from(Obj_Base && other) const = 0;
             virtual std::ostream & toStream(std::ostream & os) const;
             virtual std::size_t hashCode() const = 0;
+            std::string toString() const;
 
             virtual bool operator==(const Obj_Base & other) const;
 
@@ -208,6 +212,10 @@ namespace LibObj {
                 } else {
                     return os << *value;
                 }
+            }
+
+            LIBOBJ_OVERRIDE__EQUALS {
+                return value == other.value;
             }
 
             LIBOBJ_OVERRIDE__HASHCODE {

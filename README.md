@@ -112,3 +112,40 @@ we provide a `from` function to assign objects to other objects, in both `copy` 
 typically `from` would be used for `conversion(optional)/copying/moving` without `allocating` a `new object`
 
 `clone` would be used when the making a `copy` of an object `with an unknown/abstract type`
+
+`operator==` can be overrided via `LIBOBJ_OVERRIDE__EQUALS`
+
+```cpp
+LIBOBJ_OVERRIDE__EQUALS {
+    return value == other.value;
+}
+```
+
+`toStream()` is used for printing the object to streams, use `LIBOBJ_OVERRIDE__STREAM` to override
+
+```cpp
+LIBOBJ_OVERRIDE__STREAM {
+    Obj_Example_Base::toStream(os) << ", value: ";
+    if (value == nullptr) {
+        return os << "nullptr";
+    } else {
+        return os << *value;
+    }
+}
+```
+
+`toString()` constructs a string representation of the object via the `toStream(os)` function
+
+`hashCode()` returns a hash of the object itself, tho implementors are encouraged to use equality instead of identity
+
+- `Obj` returns a hash of `this` by default
+
+- subclasses should implement `hash` by excluding `this` and `Obj::hashCode` from the hash calculation to allow for multiple copies of the same object to produce the same hash as long as that object compairs equal via `operator==`
+
+`HashCodeBuilder` is provided for convinient implementation of hashCode from one or more values
+
+```cpp
+LIBOBJ_OVERRIDE__HASHCODE {
+    return HashCodeBuilder().add(value).hash;
+}
+```

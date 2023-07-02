@@ -69,4 +69,10 @@ namespace LibObj {
         return os << getObjBaseRealName() << "@"
                   << HashCodeBuilder().hashAsHex(this).substr(2);
     }
+
+    std::string Obj_Base::toString() const {
+        std::ostringstream os;
+        toStream(os);
+        return os.str();
+    }
 } // namespace LibObj
