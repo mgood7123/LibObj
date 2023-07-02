@@ -16,7 +16,7 @@ make test_debug
 
 LibObj is a C++17 compatible library, exposing an Object interface similar to Java's `Object` class
 
-a standard implementation of `Obj` is provided, along with a `Obj_Example` to demonstrate a T* referencing object
+a standard implementation of `Obj` is provided, along with a `Obj_Example` to demonstrate a `T*` referencing object
 
 ## Details
 
@@ -26,7 +26,7 @@ much like all objects extend from `Object` in Java, all subclasses of `Obj_Base`
 
 ## clone functionality
 
-the `clone` mechanism is implemented via virtual inheritence and macros, and will return an allocation of the bottom-most subclass of the object it has been invoked upon
+the `clone` mechanism is implemented via virtual inheritence and macros, and will return an `allocation` of the `bottom-most subclass` of the object it has been invoked upon
 
 all subclasses of `Obj_Base` inherit `Clone` if set up correctly
 
@@ -103,7 +103,7 @@ we provide a `from` function to assign objects to other objects, in both `copy` 
 
 `from` is the recommended way to assign objects
 
-`clone` and `from` are similar but `samantically different`
+`clone` and `from` are similar but `semantically different`
 
 - `from` imples the object should be `copied` or `moved` to another object, `optionally being converted from one type to another`
 
