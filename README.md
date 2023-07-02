@@ -149,6 +149,8 @@ LIBOBJ_OVERRIDE__STREAM {
 
 `hashCode()` returns a hash of the object itself, tho implementors are encouraged to use equality instead of identity
 
+`std::hash` is specialized to `std::hash<LibObj::Obj_Base>` and invokes the `hashCode()` function
+
 - `Obj` returns a hash of `this` by default
 
 - subclasses should implement `hash` by excluding `this` and `Obj::hashCode` from the hash calculation to allow for multiple copies of the same object to produce the same hash as long as that object compairs equal via `operator==`
@@ -159,4 +161,16 @@ LIBOBJ_OVERRIDE__STREAM {
 LIBOBJ_OVERRIDE__HASHCODE {
     return HashCodeBuilder().add(value).hash;
 }
+```
+
+```cpp
+struct HashCodeBuilder {
+        template <typename T>
+        HashCodeBuilder & add(const T & value) ...
+
+        template <typename T>
+        std::string hashAsHex(const T & value) ...
+
+        std::string hashAsHex() ...
+};
 ```
