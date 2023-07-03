@@ -111,7 +111,10 @@
 
 #define LIBOBJ_OVERRIDE__HASHCODE std::size_t hashCode() const override
 
-#define LIB_OBJ_ERROR_STRING "dont know how to assign a non-const to a const"
+#define LIB_OBJ_ERROR_STRING                                                   \
+    "attempting to assign a const pointer to a non-const pointer ( result of " \
+    "[ T* = const T* ] would make [ T = const T ], cannot modify read-only "   \
+    "variable )"
 
 #define LIBOBJ_POINTER_ASSIGN(other_base_class, other_, value,                 \
                               other_is_const_func, get_value_from_other)       \
@@ -119,22 +122,24 @@
         [this](const other_base_class & other, auto & v) ->                    \
         typename std::enable_if<!std::is_const<decltype(v)>::value,            \
                                 void>::type {                                  \
-            v = static_cast<                                                   \
-                typename std::remove_reference<decltype(v)>::type>(            \
-                const_cast<void *>(other.get_value_from_other));               \
+            if (other.other_is_const_func) {                                   \
+                throw std::runtime_error(                                      \
+                    std::string(LIB_OBJ_ERROR_STRING)                          \
+                    + ", this: " + this->getObjId().name()                     \
+                    + ", other: " + other.getObjId().name()                    \
+                    + ", func: " + __PRETTY_FUNCTION__);                       \
+            } else {                                                           \
+                v = static_cast<                                               \
+                    typename std::remove_reference<decltype(v)>::type>(        \
+                    const_cast<void *>(other.get_value_from_other));           \
+            }                                                                  \
         },                                                                     \
         [this](const other_base_class & other, auto & v) ->                    \
         typename std::enable_if<std::is_const<decltype(v)>::value,             \
                                 void>::type {                                  \
-            if (other.other_is_const_func) {                                   \
-                v = static_cast<                                               \
-                    const typename std::remove_reference<decltype(v)>::type>(  \
-                    other.get_value_from_other);                               \
-            } else {                                                           \
-                v = static_cast<                                               \
-                    typename std::remove_reference<decltype(v)>::type>(        \
-                    other.get_value_from_other);                               \
-            }                                                                  \
+            v = static_cast<                                                   \
+                const typename std::remove_reference<decltype(v)>::type>(      \
+                other.get_value_from_other);                                   \
         })(other_.as<other_base_class>(), value);
 
 namespace LibObj {
