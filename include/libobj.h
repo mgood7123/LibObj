@@ -7,6 +7,28 @@
 #include <string>
 #include <utility>
 
+#define LIBOBJ_BASE_ABSTRACT(T)                                                \
+    using Obj_Base::operator==; /* inherit == */                               \
+    using Obj_Base::operator!=; /* inherit != */                               \
+    using Obj_Base::from;       /* inherit templates */                        \
+    using Obj_Base::clone_impl; /* inherit clone_impl */                       \
+    std::size_t getObjBaseSize() const override {                              \
+        return sizeof(T);                                                      \
+    }
+
+#define LIBOBJ_BASE_ABSTRACT_WITH_CUSTOM_CLONE(T)                              \
+    using Obj_Base::operator==; /* inherit == */                               \
+    using Obj_Base::operator!=; /* inherit != */                               \
+    using Obj_Base::from;       /* inherit templates */                        \
+    using Obj_Base::clone_impl; /* inherit clone_impl */                       \
+    std::size_t getObjBaseSize() const override {                              \
+        return sizeof(T);                                                      \
+    }                                                                          \
+    void clone_impl(Obj_Base * ptr) const override {                           \
+        clone_impl_actual(static_cast<T *>(ptr));                              \
+    }                                                                          \
+    void clone_impl_actual(T * obj) const
+
 #define LIBOBJ_BASE(T)                                                         \
     using Obj_Base::operator==; /* inherit == */                               \
     using Obj_Base::operator!=; /* inherit != */                               \
@@ -40,7 +62,10 @@
     }
 
 #define LIBOBJ_BASE_WITH_CUSTOM_CLONE(T)                                       \
-    using Obj_Base::from; /* inherit templates */                              \
+    using Obj_Base::operator==; /* inherit == */                               \
+    using Obj_Base::operator!=; /* inherit != */                               \
+    using Obj_Base::from;       /* inherit templates */                        \
+    using Obj_Base::clone_impl; /* inherit clone_impl */                       \
     std::size_t getObjBaseSize() const override {                              \
         return sizeof(T);                                                      \
     }                                                                          \
