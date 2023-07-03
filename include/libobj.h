@@ -10,9 +10,6 @@
 #define LIBOBJ_BASE(T)                                                         \
     using Obj_Base::from;       /* inherit templates */                        \
     using Obj_Base::clone_impl; /* inherit clone_impl */                       \
-    std::string getObjBaseRealName() const override {                          \
-        return demangle(typeid(*this));                                        \
-    }                                                                          \
     std::size_t getObjBaseSize() const override {                              \
         return sizeof(T);                                                      \
     }                                                                          \
@@ -24,15 +21,15 @@
     }                                                                          \
     std::shared_ptr<T> clone() const {                                         \
         T * p = static_cast<T *>(baseClone());                                 \
-        auto & t1 = typeid(*this);                                             \
-        auto & t2 = typeid(*p);                                                \
+        auto t1 = this->getObjId();                                            \
+        auto t2 = p->getObjId();                                               \
         if (t1 != t2) {                                                        \
             baseCloneDelete(p);                                                \
             std::ostringstream o;                                              \
-            o << "class " << demangle(t1)                                      \
+            o << "class " << t1.name()                                         \
               << " attempted to clone itself, but the resulting allocation "   \
                  "type is class "                                              \
-              << demangle(t2);                                                 \
+              << t2.name();                                                    \
             throw std::runtime_error(o.str());                                 \
         }                                                                      \
         clone_impl(p);                                                         \
@@ -42,9 +39,6 @@
 
 #define LIBOBJ_BASE_WITH_CUSTOM_CLONE(T)                                       \
     using Obj_Base::from; /* inherit templates */                              \
-    std::string getObjBaseRealName() const override {                          \
-        return demangle(typeid(*this));                                        \
-    }                                                                          \
     std::size_t getObjBaseSize() const override {                              \
         return sizeof(T);                                                      \
     }                                                                          \
@@ -56,15 +50,15 @@
     }                                                                          \
     std::shared_ptr<T> clone() const {                                         \
         T * p = static_cast<T *>(baseClone());                                 \
-        auto & t1 = typeid(*this);                                             \
-        auto & t2 = typeid(*p);                                                \
+        auto t1 = this->getObjId();                                            \
+        auto t2 = p->getObjId();                                               \
         if (t1 != t2) {                                                        \
             baseCloneDelete(p);                                                \
             std::ostringstream o;                                              \
-            o << "class " << demangle(t1)                                      \
+            o << "class " << t1.name()                                         \
               << " attempted to clone itself, but the resulting allocation "   \
                  "type is class "                                              \
-              << demangle(t2);                                                 \
+              << t2.name();                                                    \
             throw std::runtime_error(o.str());                                 \
         }                                                                      \
         clone_impl(p);                                                         \
@@ -87,9 +81,19 @@
 
 namespace LibObj {
 
-    const std::string demangle(const std::type_info & ti);
-
     struct Obj_Base {
+            struct Obj_Base_ID {
+                    const std::type_info & id;
+
+                    Obj_Base_ID(const Obj_Base & base);
+
+                    std::string name() const;
+
+                    bool operator==(const Obj_Base_ID & other);
+
+                    bool operator!=(const Obj_Base_ID & other);
+            };
+
             template <typename T, class... Args>
             static std::shared_ptr<T> Create(Args &&... args) {
                 static_assert(std::is_base_of<Obj_Base, T>::value,
@@ -106,8 +110,9 @@ namespace LibObj {
                 return std::make_shared<T>(std::forward<Args>(args)...);
             }
 
+            Obj_Base_ID getObjId() const;
+
             virtual std::size_t getObjBaseSize() const = 0;
-            virtual std::string getObjBaseRealName() const = 0;
             virtual Obj_Base * baseClone() const = 0;
             virtual void baseCloneDelete(Obj_Base * ptr) const = 0;
             virtual void clone_impl(Obj_Base * obj) const = 0;
@@ -144,9 +149,24 @@ namespace LibObj {
 
                     std::size_t hash = 1;
 
-                    template <typename T>
-                    HashCodeBuilder & add(const T & value) {
-                        hash = 31 * hash + std::hash<T>()(value);
+                    template <typename U,
+                              typename std::enable_if<
+                                  std::is_base_of<Obj_Base, U>::value,
+                                  bool>::type = true>
+                    HashCodeBuilder & add(const U & value) {
+                        hash = 31 * hash + std::hash<Obj_Base>()(value);
+                        return *this;
+                    }
+
+                    template <typename U,
+                              typename std::enable_if<
+                                  !std::is_base_of<Obj_Base, U>::value,
+                                  bool>::type = true>
+                    HashCodeBuilder & add(const U & value) {
+                        hash =
+                            31 * hash
+                            + std::hash<typename std::remove_const<U>::type>()(
+                                value);
                         return *this;
                     }
 
@@ -210,7 +230,11 @@ namespace LibObj {
             }
 
             LIBOBJ_OVERRIDE__EQUALS {
-                return value == other.value;
+                if (getObjId() != other.getObjId()) {
+                    return false;
+                }
+                return value
+                       == static_cast<const Obj_Example<T> &>(other).value;
             }
 
             LIBOBJ_OVERRIDE__HASHCODE {
@@ -348,6 +372,13 @@ namespace LibObj {
 namespace std {
     template <>
     struct hash<LibObj::Obj> {
+            size_t operator()(const LibObj::Obj & obj) const {
+                return obj.hashCode();
+            }
+    };
+
+    template <>
+    struct hash<const LibObj::Obj> {
             size_t operator()(const LibObj::Obj & obj) const {
                 return obj.hashCode();
             }

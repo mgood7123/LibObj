@@ -66,7 +66,7 @@ namespace LibObj {
     }
 
     std::ostream & Obj_Base::toStream(std::ostream & os) const {
-        return os << getObjBaseRealName() << "@"
+        return os << getObjId().name() << "@"
                   << HashCodeBuilder().hashAsHex(this).substr(2);
     }
 
@@ -75,4 +75,26 @@ namespace LibObj {
         toStream(os);
         return os.str();
     }
+
+    Obj_Base::Obj_Base_ID::Obj_Base_ID(const Obj_Base & base) :
+        id(typeid(base)) {}
+
+    std::string Obj_Base::Obj_Base_ID::name() const {
+        return demangle(id);
+    }
+
+    bool
+    Obj_Base::Obj_Base_ID::operator==(const Obj_Base::Obj_Base_ID & other) {
+        return id == other.id;
+    }
+
+    bool
+    Obj_Base::Obj_Base_ID::operator!=(const Obj_Base::Obj_Base_ID & other) {
+        return id != other.id;
+    }
+
+    Obj_Base::Obj_Base_ID Obj_Base::getObjId() const {
+        return Obj_Base::Obj_Base_ID(*this);
+    }
+
 } // namespace LibObj

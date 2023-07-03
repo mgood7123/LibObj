@@ -45,7 +45,9 @@ the actual implementation is
 ```cpp
 T* p = baseClone();
 
-// type check against this and p
+if (this->getObjId() != p->getObjId()) {
+    // log and throw
+}
 
 clone_impl(p); // default impl : obj->from(*this);
 
@@ -71,7 +73,13 @@ an unsafe clone can be done via
 
 ```cpp
 auto x = o->baseClone(); // must be deallocated manually
-o->clone_impl(x); // type checking is souly up to the implementation, if x and o are not the same type then UB may happen
+
+if (x->getObjId() != o->getObjId()) {
+    // can do something here if types dont match
+}
+
+// attempt to clone even if types dont match, UB may happen
+o->clone_impl(x);
 
 // ...
 
@@ -108,6 +116,8 @@ assigned value: 1
 
 # other details
 
+the object `name` can be obtained via `getObjId().name()`
+
 `all copy and move constructors` are explicitly marked as `= delete` due to the fact that `constructors in C++ do not correctly participate in overload resolution`
 
 we provide a `from` function to assign objects to other objects, in both `copy` and `move` form
@@ -128,7 +138,10 @@ typically `from` would be used for `conversion(optional)/copying/moving` without
 
 ```cpp
 LIBOBJ_OVERRIDE__EQUALS {
-    return value == other.value;
+    if (getObjId() != other.getObjId()) {
+        return false;
+    }
+    return value == static_cast<const Obj_Example<T> &>(other).value;
 }
 ```
 
@@ -149,7 +162,8 @@ LIBOBJ_OVERRIDE__STREAM {
 
 `hashCode()` returns a hash of the object itself, tho implementors are encouraged to use equality instead of identity
 
-`std::hash` is specialized to `std::hash<LibObj::Obj_Base>` and invokes the `hashCode()` function
+a specialization exists for `std::hash<LibObj::Obj_Base>` and invokes the `hashCode()` function
+a specialization exists for `std::hash<const LibObj::Obj_Base>` and invokes the `hashCode()` function
 
 - `Obj` returns a hash of `this` by default
 
@@ -165,8 +179,20 @@ LIBOBJ_OVERRIDE__HASHCODE {
 
 ```cpp
 struct HashCodeBuilder {
-        template <typename T>
-        HashCodeBuilder & add(const T & value) ...
+
+        // add specialization for Obj_Base and all subclasses of Obj_Base
+
+        template <typename U, typename std::enable_if<
+                                std::is_base_of<Obj_Base, U>::value,
+                                bool>::type = true>
+        HashCodeBuilder & add(const U & value) ...
+
+        // add specialization for everything else
+
+        template <typename U, typename std::enable_if<
+                                !std::is_base_of<Obj_Base, U>::value,
+                                bool>::type = true>
+        HashCodeBuilder & add(const U & value) ...
 
         template <typename T>
         std::string hashAsHex(const T & value) ...

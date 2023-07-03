@@ -11,30 +11,30 @@ using namespace LibObj;
     auto NAME = Obj::Create<TYPE>();                                           \
     LOG(NAME);                                                                 \
     std::cout << "[LOG] DONE created " #NAME " of type "                       \
-              << NAME->getObjBaseRealName() << "\n\n"
+              << NAME->getObjId().name() << "\n\n"
 #define CREATE1(NAME, TYPE, ARG1)                                              \
     std::cout << "[LOG] creating " #NAME " of type " #TYPE "\n";               \
     auto NAME = Obj::Create<TYPE>(ARG1);                                       \
     LOG(NAME);                                                                 \
     std::cout << "[LOG] DONE created " #NAME " of type "                       \
-              << NAME->getObjBaseRealName() << "\n\n"
+              << NAME->getObjId().name() << "\n\n"
 #define CLONE(NAME, FROM)                                                      \
     std::cout << "[LOG] cloning " #NAME " from " #FROM " of type "             \
-              << FROM->getObjBaseRealName() << "\n";                           \
+              << FROM->getObjId().name() << "\n";                              \
     auto NAME = FROM->clone();                                                 \
     LOG(NAME);                                                                 \
     std::cout << "[LOG] DONE cloned " #NAME " from " #FROM " of type "         \
-              << FROM->getObjBaseRealName() << "\n\n"
+              << FROM->getObjId().name() << "\n\n"
 #define CREATE_FROM(NAME, TYPE, FROM)                                          \
     std::cout << "[LOG] creating " #NAME " of type " #TYPE " from " #FROM      \
                  " of type "                                                   \
-              << FROM->getObjBaseRealName() << "\n";                           \
+              << FROM->getObjId().name() << "\n";                              \
     auto NAME = Obj::Create<TYPE>();                                           \
     NAME->from(FROM);                                                          \
     LOG(NAME);                                                                 \
     std::cout << "[LOG] DONE created " #NAME " of type " #TYPE " from " #FROM  \
                  " of type "                                                   \
-              << FROM->getObjBaseRealName() << "\n\n"
+              << FROM->getObjId().name() << "\n\n"
 
 TEST(libobj, basic) {
     int * a_ = new int {1};
