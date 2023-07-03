@@ -153,8 +153,8 @@ namespace LibObj {
                               typename std::enable_if<
                                   std::is_base_of<Obj_Base, U>::value,
                                   bool>::type = true>
-                    HashCodeBuilder & add(const U & value) {
-                        hash = 31 * hash + std::hash<Obj_Base>()(value);
+                    HashCodeBuilder & add(const U & obj) {
+                        hash = 31 * hash + obj.hashCode();
                         return *this;
                     }
 
@@ -371,15 +371,15 @@ namespace LibObj {
 
 namespace std {
     template <>
-    struct hash<LibObj::Obj> {
-            size_t operator()(const LibObj::Obj & obj) const {
+    struct hash<LibObj::Obj_Base> {
+            size_t operator()(const LibObj::Obj_Base & obj) const {
                 return obj.hashCode();
             }
     };
 
     template <>
-    struct hash<const LibObj::Obj> {
-            size_t operator()(const LibObj::Obj & obj) const {
+    struct hash<const LibObj::Obj_Base> {
+            size_t operator()(const LibObj::Obj_Base & obj) const {
                 return obj.hashCode();
             }
     };
