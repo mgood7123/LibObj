@@ -111,6 +111,32 @@
 
 #define LIBOBJ_OVERRIDE__HASHCODE std::size_t hashCode() const override
 
+#define LIB_OBJ_ERROR_STRING "dont know how to assign a non-const to a const"
+
+#define LIBOBJ_POINTER_ASSIGN(other_base_class, other_, value,                 \
+                              other_is_const_func, get_value_from_other)       \
+    LibObj::Obj_Base_make_overload(                                            \
+        [this](const other_base_class & other, auto & v) ->                    \
+        typename std::enable_if<!std::is_const<decltype(v)>::value,            \
+                                void>::type {                                  \
+            v = static_cast<                                                   \
+                typename std::remove_reference<decltype(v)>::type>(            \
+                const_cast<void *>(other.get_value_from_other));               \
+        },                                                                     \
+        [this](const other_base_class & other, auto & v) ->                    \
+        typename std::enable_if<std::is_const<decltype(v)>::value,             \
+                                void>::type {                                  \
+            if (other.other_is_const_func) {                                   \
+                v = static_cast<                                               \
+                    const typename std::remove_reference<decltype(v)>::type>(  \
+                    other.get_value_from_other);                               \
+            } else {                                                           \
+                v = static_cast<                                               \
+                    typename std::remove_reference<decltype(v)>::type>(        \
+                    other.get_value_from_other);                               \
+            }                                                                  \
+        })(other_.as<other_base_class>(), value);
+
 namespace LibObj {
 
     struct Obj_Base {
@@ -219,6 +245,23 @@ namespace LibObj {
             };
     };
 
+    template <class F>
+    struct Obj_Base_ext_fncall : private F {
+            Obj_Base_ext_fncall(F v) : F(v) {}
+
+            using F::operator();
+    };
+
+    template <class... Fs>
+    struct Obj_Base_overload : public Obj_Base_ext_fncall<Fs>... {
+            Obj_Base_overload(Fs... vs) : Obj_Base_ext_fncall<Fs>(vs)... {}
+    };
+
+    template <class... Fs>
+    Obj_Base_overload<Fs...> Obj_Base_make_overload(Fs... vs) {
+        return Obj_Base_overload<Fs...> {vs...};
+    }
+
     struct Obj : public Obj_Base {
             LIBOBJ_BASE_WITH_CUSTOM_CLONE(Obj) {
                 obj->from(*this);
@@ -281,86 +324,30 @@ namespace LibObj {
                 return value;
             }
 
-            template <typename U = T,
-                      typename std::enable_if<std::is_const<U>::value,
-                                              bool>::type = true>
-            void from_(const Obj_Base & other) const {
-                if (other.as<Obj_Example_Base>().isConst()) {
-                    value = static_cast<const U *>(
-                        other.as<Obj_Example_Base>().getValue());
-                    if (value == nullptr) {
-                        std::cout << "assigned value: nullptr\n";
-                    } else {
-                        std::cout << "assigned value: " << *value << "\n";
-                    }
-                } else {
-                    throw std::runtime_error(
-                        "dont know how to assign a non-const to a const");
-                }
-            }
-
-            template <typename U = T,
-                      typename std::enable_if<!std::is_const<U>::value,
-                                              bool>::type = true>
-            void from_(const Obj_Base & other) const {
-                if (!other.as<Obj_Example_Base>().isConst()) {
-                    value = static_cast<T *>(const_cast<void *>(
-                        other.as<Obj_Example_Base>().getValue()));
-                    if (value == nullptr) {
-                        std::cout << "assigned value: nullptr\n";
-                    } else {
-                        std::cout << "assigned value: " << *value << "\n";
-                    }
-                } else {
-                    throw std::runtime_error(
-                        "dont know how to assign a const to a non-const");
-                }
-            }
-
-            template <typename U = T,
-                      typename std::enable_if<std::is_const<U>::value,
-                                              bool>::type = true>
-            void from_(Obj_Base && other) const {
-                if (other.as<Obj_Example_Base>().isConst()) {
-                    value = static_cast<const U *>(const_cast<const void *>(
-                        other.as<Obj_Example_Base>().getValue()));
-                    if (value == nullptr) {
-                        std::cout << "assigned value: nullptr\n";
-                    } else {
-                        std::cout << "assigned value: " << *value << "\n";
-                    }
-                } else {
-                    throw std::runtime_error(
-                        "dont know how to assign a non-const to a const");
-                }
-            }
-
-            template <typename U = T,
-                      typename std::enable_if<!std::is_const<U>::value,
-                                              bool>::type = true>
-            void from_(Obj_Base && other) const {
-                if (!other.as<Obj_Example_Base>().isConst()) {
-                    value = static_cast<T *>(const_cast<void *>(
-                        other.as<Obj_Example_Base>().getValue()));
-                    if (value == nullptr) {
-                        std::cout << "assigned value: nullptr\n";
-                    } else {
-                        std::cout << "assigned value: " << *value << "\n";
-                    }
-                } else {
-                    throw std::runtime_error(
-                        "dont know how to assign a const to a non-const");
-                }
-            }
-
             LIBOBJ_OVERRIDE__FROM_COPY {
                 std::cout << "other: " << other << "\n";
-                from_(other);
+
+                LIBOBJ_POINTER_ASSIGN(Obj_Example_Base, other, value, isConst(),
+                                      getValue())
+
+                if (value == nullptr) {
+                    std::cout << "assigned value: nullptr\n";
+                } else {
+                    std::cout << "assigned value: " << *value << "\n";
+                }
             }
 
             LIBOBJ_OVERRIDE__FROM_MOVE {
                 std::cout << "other: " << other << "\n";
-                from_(std::move(other));
+
+                LIBOBJ_POINTER_ASSIGN(Obj_Example_Base, other, value, isConst(),
+                                      getValue())
+
+                if (value == nullptr) {
+                    std::cout << "assigned value: nullptr\n";
+                } else {
+                    std::cout << "assigned value: " << *value << "\n";
+                }
             }
 
             Obj_Example() {

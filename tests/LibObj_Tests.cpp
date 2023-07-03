@@ -58,6 +58,10 @@ TEST(libobj, basic) {
 
             CREATE1(o15, Obj_Example2<int>, a_);
             CLONE(o16, o15);
+            CREATE1(non_const_o, Obj_Example2<int>, a_);
+            CREATE1(const_o, Obj_Example2<const int>, b_);
+            CREATE_FROM(non_const_o__to__const_o, Obj_Example2<const int>, non_const_o);
+            CREATE_FROM(const_o__to__non_const_o, Obj_Example2<int>, const_o);
         }
     }
     delete a_;

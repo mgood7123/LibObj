@@ -34,6 +34,12 @@ the following macros can be used to correctly setup the object
 - `LIBOBJ_BASE_WITH_CUSTOM_CLONE`
 - `LIBOBJ_BASE_ABSTRACT_WITH_CUSTOM_CLONE`
 
+the macro `LIBOBJ_POINTER_ASSIGN` can be used to assign a pointer from one object to another object, this implies shared `non-ownership`
+- if the pointer must have shared reference (but not owning) between objects then the macro `LIBOBJ_POINTER_ASSIGN` should be used
+- if the pointer must have shared ownership between objects then `std::shared` should be used
+- if the pointer must have only a single owner then `std::unique` should be used
+- otherwise pointer duplication code should be used (such that it is as-if `clone` was used to clone the `pointer allocation` and the `pointer value`)
+
 ## clone functionality
 
 the `clone` mechanism is implemented via virtual inheritence and macros, and will return an `allocation` of the `bottom-most subclass` of the object it has been invoked upon
