@@ -24,6 +24,10 @@ a standard implementation of `Obj` is provided, along with a `Obj_Example` to de
 
 much like all objects extend from `Object` in Java, all subclasses of `Obj_Base` and `Obj` are ultimately a subclass of `Obj_Base`
 
+the `as` function can be used to `static_cast` an `Obj_Base` to another `Obj_Base`
+
+- `obj.as(Obj2)` returns `static_cast<const T &>(*this);` after a `static_assert` to make sure `T` derives from `Obj_Base`
+
 ## clone functionality
 
 the `clone` mechanism is implemented via virtual inheritence and macros, and will return an `allocation` of the `bottom-most subclass` of the object it has been invoked upon

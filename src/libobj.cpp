@@ -51,15 +51,8 @@ namespace LibObj {
         return h.str();
     }
 
-    void Obj::from(const Obj & other) const {}
-    void Obj::from(Obj && other) const {}
-
-    void Obj::from(const Obj_Base & other) const {
-        from(static_cast<const Obj &>(other));
-    }
-    void Obj::from(Obj_Base && other) const {
-        from(std::move(static_cast<Obj &&>(other)));
-    }
+    void Obj::from(const Obj_Base & other) const {}
+    void Obj::from(Obj_Base && other) const {}
 
     std::size_t Obj::hashCode() const {
         return HashCodeBuilder().add(this).hash;

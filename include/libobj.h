@@ -137,6 +137,14 @@ namespace LibObj {
 
             virtual bool operator==(const Obj_Base & other) const;
 
+            template <typename T>
+            const T & as() const {
+                static_assert(std::is_base_of<Obj_Base, T>::value,
+                              "template argument T must derive from Obj_Base ( "
+                              "T : public Obj )");
+                return static_cast<const T &>(*this);
+            }
+
             bool operator!=(const Obj_Base & other) const;
             Obj_Base() = default;
             Obj_Base(const Obj_Base & other) = delete;
@@ -184,11 +192,9 @@ namespace LibObj {
                 obj->from(*this);
             }
 
-            // replace from(Obj_Base) with from(Obj)
-            virtual void from(const Obj & other) const;
-            virtual void from(Obj && other) const;
-            void from(const Obj_Base & other) const override final;
-            void from(Obj_Base && other) const override final;
+            void from(const Obj_Base & other) const override;
+
+            void from(Obj_Base && other) const override;
 
             LIBOBJ_OVERRIDE__HASHCODE;
     };
@@ -230,11 +236,7 @@ namespace LibObj {
             }
 
             LIBOBJ_OVERRIDE__EQUALS {
-                if (getObjId() != other.getObjId()) {
-                    return false;
-                }
-                return value
-                       == static_cast<const Obj_Example<T> &>(other).value;
+                return value == other.as<Obj_Example_Base>().getValue();
             }
 
             LIBOBJ_OVERRIDE__HASHCODE {
@@ -251,9 +253,10 @@ namespace LibObj {
             template <typename U = T,
                       typename std::enable_if<std::is_const<U>::value,
                                               bool>::type = true>
-            void from_(const Obj_Example_Base & other) const {
-                if (other.isConst()) {
-                    value = static_cast<const U *>(other.getValue());
+            void from_(const Obj_Base & other) const {
+                if (other.as<Obj_Example_Base>().isConst()) {
+                    value = static_cast<const U *>(
+                        other.as<Obj_Example_Base>().getValue());
                     if (value == nullptr) {
                         std::cout << "assigned value: nullptr\n";
                     } else {
@@ -268,10 +271,10 @@ namespace LibObj {
             template <typename U = T,
                       typename std::enable_if<!std::is_const<U>::value,
                                               bool>::type = true>
-            void from_(const Obj_Example_Base & other) const {
-                if (!other.isConst()) {
-                    value =
-                        static_cast<T *>(const_cast<void *>(other.getValue()));
+            void from_(const Obj_Base & other) const {
+                if (!other.as<Obj_Example_Base>().isConst()) {
+                    value = static_cast<T *>(const_cast<void *>(
+                        other.as<Obj_Example_Base>().getValue()));
                     if (value == nullptr) {
                         std::cout << "assigned value: nullptr\n";
                     } else {
@@ -286,10 +289,10 @@ namespace LibObj {
             template <typename U = T,
                       typename std::enable_if<std::is_const<U>::value,
                                               bool>::type = true>
-            void from_(Obj_Example_Base && other) const {
-                if (other.isConst()) {
-                    value = static_cast<const U *>(
-                        const_cast<const void *>(other.getValue()));
+            void from_(Obj_Base && other) const {
+                if (other.as<Obj_Example_Base>().isConst()) {
+                    value = static_cast<const U *>(const_cast<const void *>(
+                        other.as<Obj_Example_Base>().getValue()));
                     if (value == nullptr) {
                         std::cout << "assigned value: nullptr\n";
                     } else {
@@ -304,10 +307,10 @@ namespace LibObj {
             template <typename U = T,
                       typename std::enable_if<!std::is_const<U>::value,
                                               bool>::type = true>
-            void from_(Obj_Example_Base && other) const {
-                if (!other.isConst()) {
-                    value =
-                        static_cast<T *>(const_cast<void *>(other.getValue()));
+            void from_(Obj_Base && other) const {
+                if (!other.as<Obj_Example_Base>().isConst()) {
+                    value = static_cast<T *>(const_cast<void *>(
+                        other.as<Obj_Example_Base>().getValue()));
                     if (value == nullptr) {
                         std::cout << "assigned value: nullptr\n";
                     } else {
@@ -319,22 +322,14 @@ namespace LibObj {
                 }
             }
 
-            void from(const Obj_Example_Base & other) const {
+            void from(const Obj_Base & other) const override {
                 std::cout << "other: " << other << "\n";
                 from_(other);
             }
 
-            void from(Obj_Example_Base && other) const {
+            void from(Obj_Base && other) const override {
                 std::cout << "other: " << other << "\n";
                 from_(std::move(other));
-            }
-
-            void from(const Obj & other) const override final {
-                from(static_cast<const Obj_Example_Base &>(other));
-            }
-
-            void from(Obj && other) const override final {
-                from(std::move(static_cast<Obj_Example_Base &&>(other)));
             }
 
             Obj_Example() {
