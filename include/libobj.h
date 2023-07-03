@@ -8,6 +8,8 @@
 #include <utility>
 
 #define LIBOBJ_BASE(T)                                                         \
+    using Obj_Base::operator==; /* inherit == */                               \
+    using Obj_Base::operator!=; /* inherit != */                               \
     using Obj_Base::from;       /* inherit templates */                        \
     using Obj_Base::clone_impl; /* inherit clone_impl */                       \
     std::size_t getObjBaseSize() const override {                              \
