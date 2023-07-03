@@ -71,6 +71,11 @@
     }                                                                          \
     void clone_impl_actual(T * obj) const
 
+#define LIBOBJ_OVERRIDE__FROM_COPY                                             \
+    void from(const Obj_Base & other) const override
+
+#define LIBOBJ_OVERRIDE__FROM_MOVE void from(Obj_Base && other) const override
+
 #define LIBOBJ_OVERRIDE__EQUALS                                                \
     bool operator==(const Obj_Base & other) const override
 
@@ -192,9 +197,8 @@ namespace LibObj {
                 obj->from(*this);
             }
 
-            void from(const Obj_Base & other) const override;
-
-            void from(Obj_Base && other) const override;
+            LIBOBJ_OVERRIDE__FROM_COPY;
+            LIBOBJ_OVERRIDE__FROM_MOVE;
 
             LIBOBJ_OVERRIDE__HASHCODE;
     };
@@ -322,12 +326,12 @@ namespace LibObj {
                 }
             }
 
-            void from(const Obj_Base & other) const override {
+            LIBOBJ_OVERRIDE__FROM_COPY {
                 std::cout << "other: " << other << "\n";
                 from_(other);
             }
 
-            void from(Obj_Base && other) const override {
+            LIBOBJ_OVERRIDE__FROM_MOVE {
                 std::cout << "other: " << other << "\n";
                 from_(std::move(other));
             }

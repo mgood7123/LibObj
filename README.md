@@ -126,6 +126,20 @@ the object `name` can be obtained via `getObjId().name()`
 
 we provide a `from` function to assign objects to other objects, in both `copy` and `move` form
 
+from can be overriden via `LIBOBJ_OVERRIDE__FROM_COPY` and `LIBOBJ_OVERRIDE__FROM_MOVE`
+
+```cpp
+LIBOBJ_OVERRIDE__FROM_COPY {
+    std::cout << "other: " << other << "\n";
+    from_(other);
+}
+
+LIBOBJ_OVERRIDE__FROM_MOVE {
+    std::cout << "other: " << other << "\n";
+    from_(std::move(other));
+}
+```
+
 `from` is the recommended way to assign objects
 
 `clone` and `from` are similar but `semantically different`
