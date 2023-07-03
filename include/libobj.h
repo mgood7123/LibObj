@@ -116,7 +116,7 @@
     "[ T* = const T* ] would make [ T = const T ], cannot modify read-only "   \
     "variable )"
 
-#define LIBOBJ_POINTER_ASSIGN(other_base_class, other_, value,                 \
+#define LIBOBJ_POINTER_ASSIGN(other_base_class, other_, value_,                 \
                               other_is_const_func, get_value_from_other)       \
     LibObj::Obj_Base_make_overload(                                            \
         [this](const other_base_class & other, auto & v) ->                    \
@@ -140,7 +140,7 @@
             v = static_cast<                                                   \
                 const typename std::remove_reference<decltype(v)>::type>(      \
                 other.get_value_from_other);                                   \
-        })(other_.as<other_base_class>(), value);
+        })(other_.as<other_base_class>(), value_);
 
 namespace LibObj {
 
