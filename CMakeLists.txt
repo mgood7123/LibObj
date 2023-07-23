@@ -12,11 +12,11 @@ if(NOT COMMAND testBuilder_build)
     testBuilder_set_current_working_directory_to_default_binary_directory()
 endif()
 
-add_subdirectory(LibObjClangPlugin)
+#add_subdirectory(LibObjClangPlugin)
 
 testBuilder_add_include(LibObj include)
 testBuilder_add_source(LibObj src/libobj.cpp)
-testBuilder_add_library(LibObj LibObjClangPlugin)
+#testBuilder_add_library(LibObj LibObjClangPlugin)
 testBuilder_build_shared_library(LibObj)
 
 if (NOT TARGET gtest AND NOT TARGET gtest_main)

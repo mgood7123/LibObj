@@ -93,15 +93,12 @@ int main() {
     T * baseClone() const override {                                           \
         return new T();                                                        \
     }                                                                          \
-    void baseCloneDelete(Obj_Base * ptr) const override {                      \
-        delete static_cast<T *>(ptr);                                          \
-    }                                                                          \
-    std::shared_ptr<T> clone() const {                                         \
+    T* clone() const override {                                         \
         T * p = static_cast<T *>(baseClone());                                 \
         auto t1 = this->getObjId();                                            \
         auto t2 = p->getObjId();                                               \
         if (t1 != t2) {                                                        \
-            baseCloneDelete(p);                                                \
+            delete p;                                                \
             std::ostringstream o;                                              \
             o << "class " << t1.name()                                         \
               << " attempted to clone itself, but the resulting allocation "   \
@@ -110,8 +107,7 @@ int main() {
             throw std::runtime_error(o.str());                                 \
         }                                                                      \
         clone_impl(p);                                                         \
-        return std::shared_ptr<T>(static_cast<T *>(p),                         \
-                                  [](auto p) { delete static_cast<T *>(p); }); \
+        return p; \
     }
 
 #define LIBOBJ_BASE_WITH_CUSTOM_CLONE(T)                                       \
@@ -125,15 +121,12 @@ int main() {
     T * baseClone() const override {                                           \
         return new T();                                                        \
     }                                                                          \
-    void baseCloneDelete(Obj_Base * ptr) const override {                      \
-        delete static_cast<T *>(ptr);                                          \
-    }                                                                          \
-    std::shared_ptr<T> clone() const {                                         \
+    T* clone() const override {                                         \
         T * p = static_cast<T *>(baseClone());                                 \
         auto t1 = this->getObjId();                                            \
         auto t2 = p->getObjId();                                               \
         if (t1 != t2) {                                                        \
-            baseCloneDelete(p);                                                \
+            delete p;                                                \
             std::ostringstream o;                                              \
             o << "class " << t1.name()                                         \
               << " attempted to clone itself, but the resulting allocation "   \
@@ -142,8 +135,7 @@ int main() {
             throw std::runtime_error(o.str());                                 \
         }                                                                      \
         clone_impl(p);                                                         \
-        return std::shared_ptr<T>(static_cast<T *>(p),                         \
-                                  [](auto p) { delete static_cast<T *>(p); }); \
+        return p; \
     }                                                                          \
                                                                                \
     void clone_impl(Obj_Base * ptr) const override {                           \
@@ -230,8 +222,8 @@ namespace LibObj {
 
             virtual std::size_t getObjBaseSize() const = 0;
             virtual Obj_Base * baseClone() const = 0;
-            virtual void baseCloneDelete(Obj_Base * ptr) const = 0;
             virtual void clone_impl(Obj_Base * obj) const = 0;
+            virtual Obj_Base * clone() const = 0;
 
             template <typename U, typename std::enable_if<
                                       std::is_base_of<Obj_Base, U>::value,

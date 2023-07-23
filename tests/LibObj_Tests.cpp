@@ -31,7 +31,7 @@ using namespace LibObj;
               << FROM->getObjId().name() << "\n";                              \
     auto NAME = Obj::Create<TYPE>();                                           \
     try {                                                                      \
-        NAME->from(FROM);                                                      \
+        NAME->from(*FROM);                                                      \
     } catch (std::exception & e) {                                             \
         std::cout << "CAUGHT EXCEPTION: " << e.what() << "\n";                 \
     }                                                                          \
