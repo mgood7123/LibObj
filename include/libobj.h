@@ -65,6 +65,7 @@ int main() {
     using Obj_Base::operator!=; /* inherit != */                               \
     using Obj_Base::from;       /* inherit templates */                        \
     using Obj_Base::clone_impl; /* inherit clone_impl */                       \
+    using Obj_Base::clone;      /* inherit clone */                            \
     std::size_t getObjBaseSize() const override {                              \
         return sizeof(T);                                                      \
     }
@@ -74,6 +75,7 @@ int main() {
     using Obj_Base::operator!=; /* inherit != */                               \
     using Obj_Base::from;       /* inherit templates */                        \
     using Obj_Base::clone_impl; /* inherit clone_impl */                       \
+    using Obj_Base::clone;      /* inherit clone */                            \
     std::size_t getObjBaseSize() const override {                              \
         return sizeof(T);                                                      \
     }                                                                          \
@@ -245,12 +247,20 @@ namespace LibObj {
 
             virtual bool operator==(const Obj_Base & other) const;
 
-            template <typename T>
+            template <typename T, typename std::enable_if<!std::is_pointer<T>::value,bool>::type = true>
             const T & as() const {
                 static_assert(std::is_base_of<Obj_Base, T>::value,
                               "template argument T must derive from Obj_Base ( "
                               "T : public Obj )");
                 return static_cast<const T &>(*this);
+            }
+
+            template <typename T, typename std::enable_if<std::is_pointer<T>::value,bool>::type = true>
+            const T as() const {
+                static_assert(std::is_base_of<Obj_Base, typename std::remove_pointer<T>::type>::value,
+                              "template argument T must derive from Obj_Base ( "
+                              "T : public Obj )");
+                return static_cast<T>(this);
             }
 
             bool operator!=(const Obj_Base & other) const;
