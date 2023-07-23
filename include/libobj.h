@@ -7,6 +7,59 @@
 #include <string>
 #include <utility>
 
+
+/*
+
+// covariant template
+
+#include <type_traits>
+#include <functional>
+
+#include <stdio.h>
+#include <memory>
+
+template <typename T = void>
+struct A {
+    virtual void x() = 0;
+
+    std::shared_ptr<
+    typename std::conditional<std::is_same<void, T>::value, A<void>, T>::type
+    > get() {
+        return std::make_shared<
+            typename std::conditional<std::is_same<void, T>::value, A<void>, T>::type
+        >();
+    }
+
+    void a() {
+        puts("A");
+    }
+};
+
+#define IF_A(T, IF_VOID) typename std::conditional<std::is_same<void, T>::value, IF_VOID<void>, T>::type
+
+template <typename T = void>
+struct B : public A<IF_A(T, B)> {
+    virtual void x() override {}
+    void a() {
+        puts("B");
+    }
+};
+
+template <typename T = void>
+struct C : public B<IF_A(T, C)> {
+    virtual void x() override {}
+    void a() {
+        puts("C");
+    }
+};
+
+int main() {
+    B().get()->a();
+    C().get()->a();
+    return 0;
+}
+*/
+
 #define LIBOBJ_BASE_ABSTRACT(T)                                                \
     using Obj_Base::operator==; /* inherit == */                               \
     using Obj_Base::operator!=; /* inherit != */                               \
@@ -259,6 +312,7 @@ namespace LibObj {
 
     template <class... Fs>
     struct Obj_Base_overload : public Obj_Base_ext_fncall<Fs>... {
+            using Obj_Base_ext_fncall<Fs>::operator()...;
             Obj_Base_overload(Fs... vs) : Obj_Base_ext_fncall<Fs>(vs)... {}
     };
 

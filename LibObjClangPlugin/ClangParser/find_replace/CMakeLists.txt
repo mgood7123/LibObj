@@ -1,0 +1,34 @@
+cmake_minimum_required(VERSION 3.4.3)
+project(FindReplace)
+
+set(CMAKE_CXX_STANDARD 17 CACHE STRING "")
+
+if(NOT COMMAND testBuilder_build)
+    add_subdirectory(testBuilder)
+    testBuilder_set_current_working_directory_to_default_binary_directory()
+endif()
+
+set(PLATFORM Linux)
+
+add_subdirectory(cppfs)
+add_subdirectory(Composable-List)
+add_subdirectory(mmaptwo-plus)
+add_subdirectory(TempFile)
+
+include_directories(mmaptwo-plus)
+include_directories(include)
+
+testBuilder_add_source(mmap src/mmap.cpp)
+testBuilder_add_source(mmap src/mmap_iterator.cpp)
+testBuilder_add_include(mmap include)
+testBuilder_add_library(mmap mmaptwo_plus)
+testBuilder_build_shared_library(mmap)
+
+testBuilder_add_source(FindReplace main.cpp)
+testBuilder_add_source(FindReplace UnrestrictedMultiShiftAnd.cpp)
+testBuilder_add_library(FindReplace mmap)
+testBuilder_add_library(FindReplace cppfs)
+testBuilder_add_library(FindReplace tmpfile)
+testBuilder_add_library(FindReplace Composable_List)
+testBuilder_build(FindReplace EXECUTABLES)
+# EOF
