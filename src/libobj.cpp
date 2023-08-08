@@ -69,11 +69,18 @@ namespace LibObj {
         return os.str();
     }
 
-    Obj_Base::Obj_Base_ID::Obj_Base_ID(const Obj_Base & base) :
-        id(typeid(base)) {}
+    Obj_Base::Obj_Base_ID::Obj_Base_ID(const Obj_Base & base)
+#ifdef RTTI_ENABLED
+    : id(typeid(base))
+#endif
+    {}
 
     std::string Obj_Base::Obj_Base_ID::name() const {
+#ifdef RTTI_ENABLED
         return demangle(id);
+#else
+        return "RTTI NOT AVAILABLE";
+#endif
     }
 
     bool

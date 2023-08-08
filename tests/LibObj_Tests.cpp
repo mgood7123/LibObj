@@ -31,7 +31,7 @@ using namespace LibObj;
               << FROM->getObjId().name() << "\n";                              \
     auto NAME = Obj::Create<TYPE>();                                           \
     try {                                                                      \
-        NAME->from(*FROM);                                                      \
+        NAME->from(*FROM);                                                     \
     } catch (std::exception & e) {                                             \
         std::cout << "CAUGHT EXCEPTION: " << e.what() << "\n";                 \
     }                                                                          \
@@ -67,6 +67,11 @@ TEST(libobj, basic) {
             CREATE_FROM(non_const_o__to__const_o, Obj_Example2<const int>,
                         non_const_o);
             CREATE_FROM(const_o__to__non_const_o, Obj_Example2<int>, const_o);
+            delete o2;
+            delete o6;
+            delete o12;
+            delete o14;
+            delete o16;
         }
     }
     delete a_;

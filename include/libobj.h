@@ -7,6 +7,19 @@
 #include <string>
 #include <utility>
 
+#if defined(__clang__)
+  #if __has_feature(cxx_rtti)
+    #define RTTI_ENABLED
+  #endif
+#elif defined(__GNUG__)
+  #if defined(__GXX_RTTI)
+    #define RTTI_ENABLED
+  #endif
+#elif defined(_MSC_VER)
+  #if defined(_CPPRTTI)
+    #define RTTI_ENABLED
+  #endif
+#endif
 
 /*
 
@@ -193,7 +206,11 @@ namespace LibObj {
 
     struct Obj_Base {
             struct Obj_Base_ID {
+#ifdef RTTI_ENABLED
                     const std::type_info & id;
+#else
+                    const int id = 0;
+#endif
 
                     Obj_Base_ID(const Obj_Base & base);
 
