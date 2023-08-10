@@ -1,15 +1,6 @@
 [submodule "googletest"]
 	path = googletest
 	url = https://github.com/google/googletest
-[submodule "LibObjClangPlugin/ClangParser/find_replace/cppfs"]
-	path = LibObjClangPlugin/ClangParser/find_replace/cppfs
-	url = https://github.com/cginternals/cppfs
-[submodule "LibObjClangPlugin/ClangParser/find_replace/Composable-List"]
-	path = LibObjClangPlugin/ClangParser/find_replace/Composable-List
-	url = https://github.com/mgood7123/Composable-List
-[submodule "LibObjClangPlugin/ClangParser/find_replace/mmaptwo-plus"]
-	path = LibObjClangPlugin/ClangParser/find_replace/mmaptwo-plus
-	url = https://github.com/codylico/mmaptwo-plus
-[submodule "LibObjClangPlugin/ClangParser/find_replace/TempFile"]
-	path = LibObjClangPlugin/ClangParser/find_replace/TempFile
-	url = https://github.com/mgood7123/TempFile
+[submodule "LibObjClangPlugin/ClangParser/FindReplace"]
+	path = LibObjClangPlugin/ClangParser/FindReplace
+	url = https://github.com/mgood7123/FindReplace
