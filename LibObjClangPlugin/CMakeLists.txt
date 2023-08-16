@@ -51,8 +51,13 @@ if(NOT COMMAND testBuilder_build)
     testBuilder_set_current_working_directory_to_default_binary_directory()
 endif()
 
-testBuilder_add_source(LibObjClangPlugin_PARSER ClangParser_16/lib/Parse/ParseAST.cpp)
-testBuilder_add_include(LibObjClangPlugin_PARSER ClangParser_16/include)
+testBuilder_add_include(LibObjClangPlugin_PARSER_BASE ClangParser/llvm)
+testBuilder_add_source(LibObjClangPlugin_PARSER_BASE empty.cpp)
+testBuilder_add_include(LibObjClangPlugin_PARSER_BASE "${LLVM_INCLUDE_DIRS};${CLANG_INCLUDE_DIRS}")
+testBuilder_build_shared_library(LibObjClangPlugin_PARSER_BASE)
+
+testBuilder_add_source(LibObjClangPlugin_PARSER ClangParser/llvm/lib_llvm______16/Parse/ParseAST.cpp)
+testBuilder_add_library(LibObjClangPlugin_PARSER LibObjClangPlugin_PARSER_BASE)
 testBuilder_build_shared_library(LibObjClangPlugin_PARSER)
 
 testBuilder_add_source(LibObjClangPlugin_PLUGIN plugin.cpp)
