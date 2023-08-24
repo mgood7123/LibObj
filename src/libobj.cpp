@@ -11,6 +11,7 @@
 
 namespace LibObj {
     const std::string demangle(const std::type_info & ti) {
+#ifdef RTTI_ENABLED
 #if defined(__clang__)
         int status = -1;
         char * realname = nullptr;
@@ -29,7 +30,10 @@ namespace LibObj {
         std::string r = std::string(it.name());
         return r;
 #else
-    #error Unsupported compiler
+        #error Unsupported compiler
+#endif
+#else
+        return "RTTI NOT AVAILABLE";
 #endif
     }
 
