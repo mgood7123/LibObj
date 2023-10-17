@@ -4,3 +4,9 @@
 [submodule "LibObjClangPlugin/ClangParser/FindReplace"]
 	path = LibObjClangPlugin/ClangParser/FindReplace
 	url = https://github.com/mgood7123/FindReplace
+[submodule "testBuilder"]
+	path = testBuilder
+	url = https://github.com/mgood7123/testBuilder
+[submodule "LibObjClangPlugin/testBuilder"]
+	path = LibObjClangPlugin/testBuilder
+	url = https://github.com/mgood7123/testBuilder
